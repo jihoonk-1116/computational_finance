@@ -118,47 +118,43 @@ class RSI(object):
         3. AVG Gain = 1/14 * Current Gain + 13/14 * Previous Average Gain
         4. AVG Loss = 1/14 * Current Loss + 13/14 * Previous Average Loss
         '''
-        diff = self.ohlcv_df['close'].diff()
+        # diff = self.ohlcv_df['close'].diff()
 
-        gain = diff.copy()
-        gain[diff <= 0] = 0.0
+        # gain = diff.copy()
+        # gain[diff <= 0] = 0.0
 
-        loss = abs(diff.copy())
-        loss[diff > 0] = 0.0
+        # loss = abs(diff.copy())
+        # loss[diff > 0] = 0.0
 
-        avg_gain = gain.ewm(com=13, adjust=False, min_periods=14).mean()
-        avg_loss = loss.ewm(com=13, adjust=False, min_periods=14).mean()
+        # avg_gain = gain.ewm(com=13, adjust=False, min_periods=14).mean()
+        # avg_loss = loss.ewm(com=13, adjust=False, min_periods=14).mean()
 
-        try:
-            rs = abs(avg_gain/avg_loss)
-            self.rsi = 100-100/(1+rs)
-        except ZeroDivisionError:
-            print("Can not divide by zero")
-        # end TODO
+        # try:
+        #     rs = abs(avg_gain/avg_loss)
+        #     self.rsi = 100-100/(1+rs)
+        # except ZeroDivisionError:
+        #     print("Can not divide by zero")
+        # # end TODO
 
-        return(self.rsi)
+        # return(self.rsi)
         # TODO: implement details here
-        # current_different = self.ohlcv_df['close'].diff()
-        # current_gain = current_different.copy()
-        # current_gain[current_different <= 0] = 0  # loss = 0
+        current_different = self.ohlcv_df['close'].diff()
+        current_gain = current_different.copy()
+        current_gain[current_different <= 0] = 0  # loss = 0
 
-        # current_loss = current_different.copy()
-        # current_loss[current_different > 0] = 0.0  # gain = 0
-        # current_loss = abs(current_loss)
+        current_loss = current_different.copy()
+        current_loss[current_different > 0] = 0  # gain = 0
+        current_loss = abs(current_loss)
 
-        # gain = current_gain.ewm(com=13, adjust=False, min_periods=14)
-        # gain_mean = current_gain.ewm(
-        #     com=13, adjust=False, min_periods=14).mean()
+        gain_mean = current_gain.ewm(
+            com=13, adjust=False, min_periods=14).mean()
+        loss_mean = current_loss.ewm(
+            com=13, adjust=False, min_periods=14).mean()
 
-        # loss = current_loss.ewm(com=13, adjust=False, min_periods=14)
-        # loss_mean = current_loss.ewm(
-        #     com=13, adjust=False, min_periods=14).mean()
-
-        # rs = abs(gain_mean/loss_mean)
-        # self.rsi = 100-100/(1+rs)
+        rs = abs(gain_mean/loss_mean)
+        self.rsi = 100-100/(1+rs)
         # RSI -> 1. RS = Avg Gain / AVG Loss
-        # self.rsi = ...
-        # return self.rsi
+        return self.rsi
         # end TODO
 
 
@@ -175,6 +171,11 @@ class VWAP(object):
         '''
         calculate VWAP
         '''
+        price = (self.ohlcv_df['high'] +
+                 self.ohlcv_df['low'] + self.ohlcv_df['close']) / 3
+        self.vwap = (
+            (self.ohlcv_df['volume'] * price).cumsum()) / self.ohlcv_df['volume'].cumsum()
+        return self.vwap
         # TODO: implement details here
         # end TODO
 

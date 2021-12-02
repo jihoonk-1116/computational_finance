@@ -42,7 +42,7 @@ class Stock(object):
         # TODO
         data = self.yfinancial.get_historical_price_data(
             start_date, end_date, 'daily')
-        prices = data['AAPL']['prices']
+        prices = data[self.symbol]['prices']
         prices_df = pd.DataFrame(prices)
         prices_df2 = prices_df[['date', 'high', 'low', 'open',
                                 'close', 'volume', 'adjclose', 'formatted_date']]
@@ -68,9 +68,12 @@ class Stock(object):
         '''
         result = None
         # TODO
-        current_debt = self.yfinancial.get_total_current_liabilities(
+        current = self.yfinancial.get_total_current_liabilities(
         ) - self.yfinancial.get_account_payable() - self.yfinancial.get_other_current_liabilities()
-        result = self.yfinancial.get_long_term_debt() + current_debt
+        try:
+            result = current + self.yfinancial.get_long_term_debt()
+        except KeyError:
+            result = current
         # end TODO
         return(result)
 
@@ -80,8 +83,12 @@ class Stock(object):
         '''
         result = None
         # TODO
-        result = self.yfinancial.get_operating_cashflow(
-        ) + self.yfinancial.get_capital_expenditures()
+        try:
+            result = self.yfinancial.get_operating_cashflow(
+            ) + self.yfinancial.get_capital_expenditures()
+        except KeyError:
+            result = self.yfinancial.get_operating_cashflow()
+            print("Catch err : free cash")
         # end TODO
         return(result)
 
@@ -91,7 +98,11 @@ class Stock(object):
         '''
         result = None
         # TODO
-        result = self.yfinancial.get_cash() + self.yfinancial.get_short_term_investments()
+        # short term investment?
+        try:
+            result = self.yfinancial.get_cash() + self.yfinancial.get_short_term_investments()
+        except KeyError:
+            result = self.yfinancial.get_cash()
         # end TODO
         return(result)
 
